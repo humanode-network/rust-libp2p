@@ -128,4 +128,21 @@ pub(crate) mod tokio {
             (std::usize::MAX, None)
         }
     }
+
+    #[cfg(test)]
+    mod tests {
+        use futures::{future::poll_fn, StreamExt};
+
+        use super::Builder;
+
+        async fn panic_test(instant: std::time::Instant) {
+            let mut timer = super::TokioTimer::at(instant);
+            poll_fn(|cx| (&mut timer).poll_next_unpin(cx)).await;
+        }
+
+        #[tokio::test]
+        async fn panic() {
+            panic_test(std::time::Instant::now()).await;
+        }
+    }
 }
